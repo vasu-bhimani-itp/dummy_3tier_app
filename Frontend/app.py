@@ -5,6 +5,8 @@ app = Flask(__name__)
 
 
 
+
+
 BACKEND_URL = "http://<VMSS-LOAD-BALANCER-IP>:5000"
 
 @app.route('/')
