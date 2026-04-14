@@ -1,16 +1,26 @@
 from flask import Flask, render_template, request, redirect
 import requests
+import os
 
 app = Flask(__name__)
 
-
-
-
-BACKEND_URL = "http://<VMSS-LOAD-BALANCER-IP>:5000"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5000")
 
 @app.route('/')
 def index():
-    tasks = requests.get(f"{BACKEND_URL}/tasks").json()
+    try:
+        response = requests.get(f"{BACKEND_URL}/tasks", timeout=3)
+
+        if response.status_code == 200:
+            tasks = response.json()
+        else:
+            print("Backend returned error:", response.status_code)
+            tasks = []
+
+    except requests.exceptions.RequestException as e:
+        print("Backend not reachable:", e)
+        tasks = []
+
     return render_template('index.html', tasks=tasks)
 
 @app.route('/add', methods=['POST'])
